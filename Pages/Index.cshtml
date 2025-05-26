@@ -1,0 +1,152 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+    <meta charset="utf-8" />
+<!-- Add styles directly in the page -->
+<style>
+    .product-img {
+        height: 200px;
+        object-fit: contain;
+        background-color: #f8f9fa;
+    }
+
+    .hover-shadow:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important;
+    }
+
+    .card {
+        transition: all 0.3s ease;
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- Hero Section -->
+    <section class="row bg-dark text-white p-5 mb-4 rounded-3 shadow">
+        <div class="col-md-8">
+            <h1 class="display-4 fw-bold">Welcome to eGearStore</h1>
+            <p class="fs-4">Discover the latest electronic gear at competitive prices.</p>
+            <a href="/Products" class="btn btn-primary btn-lg">Browse All Products</a>
+        </div>
+        <div class="col-md-4 d-flex align-items-center justify-content-center">
+            <i class="bi bi-device-ssd" style="font-size: 8rem;"></i>
+        </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">Featured Products</h2>
+            <a href="/Products" class="btn btn-outline-primary">View All</a>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+            @foreach (var product in Model.products.Take(4))
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm hover-shadow">
+                        @if (!string.IsNullOrEmpty(product.ImageUrl))
+                        {
+                            <img src="@product.ImageUrl" class="card-img-top product-img" alt="@product.ProductName">
+                        }
+                        else
+                        {
+                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                <i class="bi bi-image text-secondary" style="font-size: 3rem;"></i>
+                            </div>
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title text-truncate">@product.ProductName</h5>
+                            <p class="card-text text-primary fw-bold">@string.Format("{0:#,##0} ₫", product.Price)</p>
+
+
+                            @if (product.StockQuantity > 0)
+                            {
+                                <span class="badge bg-success mb-2">In Stock</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger mb-2">Out of Stock</span>
+                            }
+
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <a href="/Products/Details?id=@product.ProductId" class="btn btn-sm btn-outline-secondary">View Details</a>
+                                <button class="btn btn-sm btn-primary" onclick="addToCart(@product.ProductId)">
+                                    <i class="bi bi-cart-plus"></i> Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section class="mb-5">
+        <h2 class="mb-4">Shop by Category</h2>
+        <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-3">
+            @{
+                // Filter out products with null Category, then group by CategoryId
+                var categories = Model.products
+                .Where(p => p.Category != null)
+                .Select(p => p.Category)
+                .GroupBy(c => c.CategoryId)
+                .Select(g => g.First())
+                .Take(6)
+                .ToList();
+
+                // Handle case where no categories exist
+                if (!categories.Any())
+                {
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            No categories available at the moment.
+                        </div>
+                    </div>
+                }
+            }
+
+            @foreach (var category in categories)
+            {
+                <div class="col">
+                    <div class="card bg-light text-center h-100">
+                        <div class="card-body d-flex flex-column justify-content-center">
+                            <h5 class="card-title">@category.CategoryName</h5>
+                            <a href="/Products?categoryId=@category.CategoryId" class="stretched-link"></a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="bg-light p-4 rounded-3 mb-5">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h3>Stay Updated</h3>
+                <p>Subscribe to our newsletter for the latest products and special offers.</p>
+            </div>
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="email" class="form-control" placeholder="Your email address">
+                    <button class="btn btn-primary" type="button">Subscribe</button>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<!-- Add script directly at the end of the page -->
+<script>
+    function addToCart(productId) {
+        // Implement cart functionality
+        console.log("Added product ID: " + productId + " to cart");
+        // You can replace this with actual cart implementation
+        alert("Product added to cart!");
+    }
+</script>
